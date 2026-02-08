@@ -26,6 +26,17 @@ public class PaymentGatewayService {
   }
 
   public UUID processPayment(PostPaymentRequest paymentRequest) {
-    return UUID.randomUUID();
+    LOG.debug("Processing payment for request: {}", paymentRequest);
+    PostPaymentResponse response = new PostPaymentResponse();
+    response.setId(UUID.randomUUID());
+    response.setStatus(com.checkout.payment.gateway.enums.PaymentStatus.AUTHORIZED);
+    response.setCardNumberLastFour("1234");
+    response.setCurrency(paymentRequest.getCurrency());
+    response.setAmount(paymentRequest.getAmount());
+    response.setExpiryMonth(paymentRequest.getExpiryMonth());
+    response.setExpiryYear(paymentRequest.getExpiryYear());
+
+    paymentsRepository.add(response);
+    return response.getId();
   }
 }

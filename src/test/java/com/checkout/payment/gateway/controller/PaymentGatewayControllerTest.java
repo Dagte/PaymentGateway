@@ -10,20 +10,11 @@ import com.checkout.payment.gateway.repository.PaymentsRepository;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
 
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-@SpringBootTest
-@AutoConfigureMockMvc
-class PaymentGatewayControllerTest {
+class PaymentGatewayControllerTest extends BasePaymentGatewayTest {
 
   @Autowired
-  private MockMvc mvc;
-  @Autowired
-  PaymentsRepository paymentsRepository;
+  private PaymentsRepository paymentsRepository;
 
   @Test
   void whenPaymentWithIdExistThenCorrectPaymentIsReturned() throws Exception {
@@ -52,6 +43,6 @@ class PaymentGatewayControllerTest {
   void whenPaymentWithIdDoesNotExistThen404IsReturned() throws Exception {
     client.get("/api/payment/" + UUID.randomUUID())
         .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.message").value("Page not found"));
+        .andExpect(jsonPath("$.message").value("Invalid ID"));
   }
 }

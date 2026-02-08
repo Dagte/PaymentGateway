@@ -1,22 +1,23 @@
-package com.checkout.payment.gateway.controller;
+package com.checkout.payment.gateway.api.controller;
 
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CARD_NUMBER_INVALID_SIZE;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CARD_NUMBER_NUMERIC;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CURRENCY_INVALID;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CVV_INVALID_SIZE;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CVV_NUMERIC;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.EXPIRY_DATE_PAST;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.INTERNAL_ERROR;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.MALFORMED_JSON;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.VALIDATION_FAILED;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CARD_NUMBER_INVALID_SIZE;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CARD_NUMBER_NUMERIC;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CURRENCY_INVALID;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CVV_INVALID_SIZE;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CVV_NUMERIC;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.EXPIRY_DATE_PAST;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.INTERNAL_ERROR;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.MALFORMED_JSON;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.VALIDATION_FAILED;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.checkout.payment.gateway.model.PostPaymentRequest;
-import com.checkout.payment.gateway.service.PaymentGatewayService;
+import com.checkout.payment.gateway.api.dto.PostPaymentRequest;
+import com.checkout.payment.gateway.core.service.PaymentGatewayService;
+import com.checkout.payment.gateway.support.BasePaymentGatewayTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

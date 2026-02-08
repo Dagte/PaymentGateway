@@ -1,4 +1,4 @@
-package com.checkout.payment.gateway.model;
+package com.checkout.payment.gateway.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;

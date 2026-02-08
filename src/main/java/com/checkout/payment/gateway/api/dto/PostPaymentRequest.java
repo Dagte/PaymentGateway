@@ -1,9 +1,7 @@
-package com.checkout.payment.gateway.model;
+package com.checkout.payment.gateway.api.dto;
 
-import com.checkout.payment.gateway.validation.ValidPaymentExpiry;
+import com.checkout.payment.gateway.api.validation.ValidPaymentExpiry;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -13,14 +11,13 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CARD_NUMBER_INVALID_SIZE;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CARD_NUMBER_NUMERIC;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CURRENCY_INVALID;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CVV_INVALID_SIZE;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CVV_NUMERIC;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CARD_NUMBER_INVALID_SIZE;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CARD_NUMBER_NUMERIC;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CURRENCY_INVALID;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CVV_INVALID_SIZE;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CVV_NUMERIC;
 
 @ValidPaymentExpiry
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PostPaymentRequest implements Serializable {
 
   @NotBlank

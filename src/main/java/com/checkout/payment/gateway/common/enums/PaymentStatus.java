@@ -1,4 +1,4 @@
-package com.checkout.payment.gateway.enums;
+package com.checkout.payment.gateway.common.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -15,6 +15,6 @@ public enum PaymentStatus {
 
   @JsonValue
   public String getName() {
-    return this.name;
+    return name;
   }
 }

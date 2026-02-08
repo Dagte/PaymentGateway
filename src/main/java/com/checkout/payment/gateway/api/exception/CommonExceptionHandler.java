@@ -1,10 +1,11 @@
-package com.checkout.payment.gateway.exception;
+package com.checkout.payment.gateway.api.exception;
 
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.INTERNAL_ERROR;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.MALFORMED_JSON;
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.VALIDATION_FAILED;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.INTERNAL_ERROR;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.MALFORMED_JSON;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.VALIDATION_FAILED;
 
-import com.checkout.payment.gateway.model.ErrorResponse;
+import com.checkout.payment.gateway.api.dto.ErrorResponse;
+import com.checkout.payment.gateway.common.exception.EventProcessingException;
 import java.util.List;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -36,8 +37,9 @@ public class CommonExceptionHandler {
             .map(error -> new ErrorResponse.ValidationError(error.getObjectName(), error.getDefaultMessage()))
     ).toList();
 
-    LOG.error("{}: {}", VALIDATION_FAILED, errors);
-    return new ResponseEntity<>(new ErrorResponse(VALIDATION_FAILED, errors), HttpStatus.BAD_REQUEST);
+    String summaryMessage = VALIDATION_FAILED;
+    LOG.error("{}: {}", summaryMessage, errors);
+    return new ResponseEntity<>(new ErrorResponse(summaryMessage, errors), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)

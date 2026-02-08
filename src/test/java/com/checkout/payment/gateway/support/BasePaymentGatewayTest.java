@@ -1,6 +1,6 @@
-package com.checkout.payment.gateway.controller;
+package com.checkout.payment.gateway.support;
 
-import com.checkout.payment.gateway.model.PostPaymentRequest;
+import com.checkout.payment.gateway.api.dto.PostPaymentRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;

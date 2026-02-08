@@ -1,12 +1,13 @@
-package com.checkout.payment.gateway.controller;
+package com.checkout.payment.gateway.api.controller;
 
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.checkout.payment.gateway.enums.PaymentStatus;
-import com.checkout.payment.gateway.model.PostPaymentResponse;
-import com.checkout.payment.gateway.repository.PaymentsRepository;
+import com.checkout.payment.gateway.common.enums.PaymentStatus;
+import com.checkout.payment.gateway.core.model.Payment;
+import com.checkout.payment.gateway.infrastructure.persistence.PaymentsRepository;
+import com.checkout.payment.gateway.support.BasePaymentGatewayTest;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ class PaymentGatewayControllerTest extends BasePaymentGatewayTest {
 
   @Test
   void whenPaymentWithIdExistThenCorrectPaymentIsReturned() throws Exception {
-    PostPaymentResponse payment = new PostPaymentResponse();
+    Payment payment = new Payment();
     payment.setId(UUID.randomUUID());
     payment.setAmount(10);
     payment.setCurrency("USD");

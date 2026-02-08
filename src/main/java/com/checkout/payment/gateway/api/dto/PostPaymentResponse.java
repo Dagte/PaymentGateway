@@ -1,6 +1,6 @@
-package com.checkout.payment.gateway.model;
+package com.checkout.payment.gateway.api.dto;
 
-import com.checkout.payment.gateway.enums.PaymentStatus;
+import com.checkout.payment.gateway.common.enums.PaymentStatus;
 import java.util.UUID;
 
 public class PostPaymentResponse {

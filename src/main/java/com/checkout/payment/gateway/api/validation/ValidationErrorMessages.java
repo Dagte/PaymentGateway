@@ -1,4 +1,4 @@
-package com.checkout.payment.gateway.validation;
+package com.checkout.payment.gateway.api.validation;
 
 public final class ValidationErrorMessages {
 
@@ -12,6 +12,7 @@ public final class ValidationErrorMessages {
   public static final String MALFORMED_JSON = "Malformed JSON request";
   public static final String INTERNAL_ERROR = "An internal error occurred";
 
-  private ValidationErrorMessages() {}
-
+  private ValidationErrorMessages() {
+    // Prevent instantiation
+  }
 }

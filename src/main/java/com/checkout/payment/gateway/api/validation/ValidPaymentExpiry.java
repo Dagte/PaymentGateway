@@ -1,6 +1,6 @@
-package com.checkout.payment.gateway.validation;
+package com.checkout.payment.gateway.api.validation;
 
-import static com.checkout.payment.gateway.validation.ValidationErrorMessages.EXPIRY_DATE_PAST;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.EXPIRY_DATE_PAST;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

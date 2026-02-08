@@ -37,9 +37,8 @@ public class CommonExceptionHandler {
             .map(error -> new ErrorResponse.ValidationError(error.getObjectName(), error.getDefaultMessage()))
     ).toList();
 
-    String summaryMessage = VALIDATION_FAILED;
-    LOG.error("{}: {}", summaryMessage, errors);
-    return new ResponseEntity<>(new ErrorResponse(summaryMessage, errors), HttpStatus.BAD_REQUEST);
+    LOG.error("Validation failed: {}", errors);
+    return new ResponseEntity<>(new ErrorResponse(VALIDATION_FAILED, errors), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)

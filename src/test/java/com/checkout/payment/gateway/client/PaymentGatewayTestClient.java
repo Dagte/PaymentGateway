@@ -1,4 +1,4 @@
-package com.checkout.payment.gateway.support;
+package com.checkout.payment.gateway.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;

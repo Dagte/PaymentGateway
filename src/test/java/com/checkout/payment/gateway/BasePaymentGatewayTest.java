@@ -1,6 +1,7 @@
-package com.checkout.payment.gateway.support;
+package com.checkout.payment.gateway;
 
 import com.checkout.payment.gateway.api.dto.PostPaymentRequest;
+import com.checkout.payment.gateway.client.PaymentGatewayTestClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public abstract class BasePaymentGatewayTest {
   protected PaymentGatewayTestClient client;
 
   @BeforeEach
-  void setUp() {
+  protected void setUp() {
     client = new PaymentGatewayTestClient(mvc, objectMapper);
   }
 

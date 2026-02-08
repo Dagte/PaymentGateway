@@ -4,7 +4,6 @@ import com.checkout.payment.gateway.api.dto.GetPaymentResponse;
 import com.checkout.payment.gateway.api.dto.PostPaymentRequest;
 import com.checkout.payment.gateway.api.dto.PostPaymentResponse;
 import com.checkout.payment.gateway.core.model.Payment;
-import com.checkout.payment.gateway.infrastructure.client.bank.model.BankPaymentRequest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,18 +17,12 @@ public class PaymentMapper {
     payment.setCurrency(request.getCurrency());
     payment.setAmount(request.getAmount());
     payment.setCvv(request.getCvv());
+    
+    if (request.getCardNumber() != null && request.getCardNumber().length() >= 4) {
+      payment.setCardNumberLastFour(request.getCardNumber().substring(request.getCardNumber().length() - 4));
+    }
+    
     return payment;
-  }
-
-  public BankPaymentRequest toBankRequest(Payment domain) {
-    String expiryDate = String.format("%02d/%d", domain.getExpiryMonth(), domain.getExpiryYear());
-    return new BankPaymentRequest(
-        domain.getCardNumber(),
-        expiryDate,
-        domain.getCurrency(),
-        domain.getAmount(),
-        domain.getCvv()
-    );
   }
 
   public PostPaymentResponse toPostPaymentResponse(Payment domain) {

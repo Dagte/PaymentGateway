@@ -1,4 +1,4 @@
-package com.checkout.payment.gateway.api.controller;
+package com.checkout.payment.gateway.api.validation;
 
 import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CARD_NUMBER_INVALID_SIZE;
 import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.CARD_NUMBER_NUMERIC;
@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.checkout.payment.gateway.api.dto.PostPaymentRequest;
 import com.checkout.payment.gateway.core.service.PaymentGatewayService;
-import com.checkout.payment.gateway.support.BasePaymentGatewayTest;
+import com.checkout.payment.gateway.BasePaymentGatewayTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

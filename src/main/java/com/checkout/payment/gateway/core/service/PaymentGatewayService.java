@@ -14,23 +14,20 @@ public class PaymentGatewayService {
   private static final Logger LOG = LoggerFactory.getLogger(PaymentGatewayService.class);
 
   private final PaymentsRepository paymentsRepository;
+  private final AcquiringBankClient bankClient;
 
-  public PaymentGatewayService(PaymentsRepository paymentsRepository) {
+  public PaymentGatewayService(PaymentsRepository paymentsRepository, AcquiringBankClient bankClient) {
     this.paymentsRepository = paymentsRepository;
+    this.bankClient = bankClient;
   }
 
   public Payment getPaymentById(UUID id) {
-    LOG.debug("Requesting access to to payment with ID {}", id);
     return paymentsRepository.get(id).orElseThrow(() -> new EventProcessingException("Invalid ID"));
   }
 
   public Payment processPayment(Payment payment) {
-    LOG.debug("Processing payment domain object: {}", payment);
-    
-    // For now, still using a stub until we finish the bank client wiring
     payment.setId(UUID.randomUUID());
-    payment.setStatus(com.checkout.payment.gateway.common.enums.PaymentStatus.AUTHORIZED);
-    
+    bankClient.process(payment);
     paymentsRepository.add(payment);
     return payment;
   }

@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.checkout.payment.gateway.common.enums.PaymentStatus;
 import com.checkout.payment.gateway.core.model.Payment;
 import com.checkout.payment.gateway.infrastructure.persistence.PaymentsRepository;
-import com.checkout.payment.gateway.support.BasePaymentGatewayTest;
+import com.checkout.payment.gateway.BasePaymentGatewayTest;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,7 @@
 package com.checkout.payment.gateway.validation;
 
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.EXPIRY_DATE_PAST;
+
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import java.lang.annotation.Documented;
@@ -13,7 +15,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPaymentExpiry {
-  String message() default "The card expiry date must be in the future";
+  String message() default EXPIRY_DATE_PAST;
   Class<?>[] groups() default {};
   Class<? extends Payload>[] payload() default {};
 }

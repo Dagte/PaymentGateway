@@ -1,5 +1,11 @@
 package com.checkout.payment.gateway.model;
 
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CARD_NUMBER_INVALID_SIZE;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CARD_NUMBER_NUMERIC;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CURRENCY_INVALID;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CVV_INVALID_SIZE;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CVV_NUMERIC;
+
 import com.checkout.payment.gateway.validation.ValidPaymentExpiry;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
@@ -15,8 +21,8 @@ import java.io.Serializable;
 public class PostPaymentRequest implements Serializable {
 
   @NotBlank
-  @Size(min = 14, max = 19)
-  @Pattern(regexp = "^\\d+$", message = "Card number must only contain numeric characters")
+  @Size(min = 14, max = 19, message = CARD_NUMBER_INVALID_SIZE)
+  @Pattern(regexp = "^\\d+$", message = CARD_NUMBER_NUMERIC)
   @JsonProperty("card_number")
   private String cardNumber;
 
@@ -31,7 +37,7 @@ public class PostPaymentRequest implements Serializable {
   private int expiryYear;
 
   @NotBlank
-  @Pattern(regexp = "^(USD|GBP|EUR)$", message = "Currency must be one of: USD, GBP, EUR")
+  @Pattern(regexp = "^(USD|GBP|EUR)$", message = CURRENCY_INVALID)
   private String currency;
 
   @NotNull
@@ -39,8 +45,8 @@ public class PostPaymentRequest implements Serializable {
   private int amount;
 
   @NotBlank
-  @Size(min = 3, max = 4)
-  @Pattern(regexp = "^\\d+$", message = "CVV must only contain numeric characters")
+  @Size(min = 3, max = 4, message = CVV_INVALID_SIZE)
+  @Pattern(regexp = "^\\d+$", message = CVV_NUMERIC)
   private String cvv;
 
   public String getCardNumber() {

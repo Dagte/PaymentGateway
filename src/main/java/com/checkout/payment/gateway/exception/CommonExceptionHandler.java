@@ -1,10 +1,14 @@
 package com.checkout.payment.gateway.exception;
 
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.INTERNAL_ERROR;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.MALFORMED_JSON;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.VALIDATION_FAILED;
+
 import com.checkout.payment.gateway.model.ErrorResponse;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -25,23 +29,26 @@ public class CommonExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
-    String errorMessage = ex.getBindingResult().getAllErrors().stream()
-        .map(DefaultMessageSourceResolvable::getDefaultMessage)
-        .collect(Collectors.joining(", "));
-    
-    LOG.error("Validation failed: {}", errorMessage);
-    return new ResponseEntity<>(new ErrorResponse(errorMessage), HttpStatus.BAD_REQUEST);
+    List<ErrorResponse.ValidationError> errors = Stream.concat(
+        ex.getBindingResult().getFieldErrors().stream()
+            .map(error -> new ErrorResponse.ValidationError(error.getField(), error.getDefaultMessage())),
+        ex.getBindingResult().getGlobalErrors().stream()
+            .map(error -> new ErrorResponse.ValidationError(error.getObjectName(), error.getDefaultMessage()))
+    ).toList();
+
+    LOG.error("{}: {}", VALIDATION_FAILED, errors);
+    return new ResponseEntity<>(new ErrorResponse(VALIDATION_FAILED, errors), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ErrorResponse> handleMalformedJsonException(HttpMessageNotReadableException ex) {
     LOG.error("Malformed JSON request: {}", ex.getMessage());
-    return new ResponseEntity<>(new ErrorResponse("Malformed JSON request"), HttpStatus.BAD_REQUEST);
+    return new ResponseEntity<>(new ErrorResponse(MALFORMED_JSON), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
     LOG.error("Unexpected error occurred", ex);
-    return new ResponseEntity<>(new ErrorResponse("An internal error occurred"), HttpStatus.INTERNAL_SERVER_ERROR);
+    return new ResponseEntity<>(new ErrorResponse(INTERNAL_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

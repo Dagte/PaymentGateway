@@ -1,6 +1,15 @@
 package com.checkout.payment.gateway.controller;
 
-import static org.hamcrest.Matchers.containsString;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CARD_NUMBER_INVALID_SIZE;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CARD_NUMBER_NUMERIC;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CURRENCY_INVALID;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CVV_INVALID_SIZE;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.CVV_NUMERIC;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.EXPIRY_DATE_PAST;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.INTERNAL_ERROR;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.MALFORMED_JSON;
+import static com.checkout.payment.gateway.validation.ValidationErrorMessages.VALIDATION_FAILED;
+import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -23,7 +32,9 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
 
     client.post("/api/payments", request)
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("size must be between 14 and 19"));
+        .andExpect(jsonPath("$.message").value(VALIDATION_FAILED))
+        .andExpect(jsonPath("$.errors[?(@.field == 'cardNumber')].message").value(
+            hasItem(CARD_NUMBER_INVALID_SIZE)));
   }
 
   @Test
@@ -33,7 +44,9 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
 
     client.post("/api/payments", request)
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Card number must only contain numeric characters"));
+        .andExpect(jsonPath("$.message").value(VALIDATION_FAILED))
+        .andExpect(jsonPath("$.errors[?(@.field == 'cardNumber')].message").value(
+            hasItem(CARD_NUMBER_NUMERIC)));
   }
 
   @Test
@@ -43,7 +56,9 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
 
     client.post("/api/payments", request)
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Currency must be one of: USD, GBP, EUR"));
+        .andExpect(jsonPath("$.message").value(VALIDATION_FAILED))
+        .andExpect(jsonPath("$.errors[?(@.field == 'currency')].message").value(
+            hasItem(CURRENCY_INVALID)));
   }
 
   @Test
@@ -53,8 +68,23 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
 
     client.post("/api/payments", request)
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("size must be between 3 and 4"));
+        .andExpect(jsonPath("$.message").value(VALIDATION_FAILED))
+        .andExpect(
+            jsonPath("$.errors[?(@.field == 'cvv')].message").value(hasItem(CVV_INVALID_SIZE)));
   }
+
+  @Test
+  void whenCvvHasNotNumericCharactersThenReturnBadRequest() throws Exception {
+    PostPaymentRequest request = createValidRequest();
+    request.setCvv("12O");
+
+    client.post("/api/payments", request)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value(VALIDATION_FAILED))
+        .andExpect(
+            jsonPath("$.errors[?(@.field == 'cvv')].message").value(hasItem(CVV_NUMERIC)));
+  }
+
 
   @Test
   void whenExpiryDateIsInThePastThenReturnBadRequest() throws Exception {
@@ -64,11 +94,13 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
 
     client.post("/api/payments", request)
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("The card expiry date must be in the future"));
+        .andExpect(jsonPath("$.message").value(VALIDATION_FAILED))
+        .andExpect(jsonPath("$.errors[?(@.field == 'postPaymentRequest')].message").value(
+            hasItem(EXPIRY_DATE_PAST)));
   }
 
   @Test
-  void whenMultipleErrorsHappenThenReturnBadRequestWithBothErrors() throws Exception {
+  void whenMultipleFieldsFailValidationThenReturnBadRequestWithMultipleErrors() throws Exception {
     PostPaymentRequest request = createValidRequest();
     request.setExpiryMonth(1);
     request.setExpiryYear(2020);
@@ -76,8 +108,11 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
 
     client.post("/api/payments", request)
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value(containsString("The card expiry date must be in the future")))
-        .andExpect(jsonPath("$.message").value(containsString("Currency must be one of: USD, GBP, EUR")));
+        .andExpect(jsonPath("$.message").value(VALIDATION_FAILED))
+        .andExpect(jsonPath("$.errors[?(@.field == 'postPaymentRequest')].message").value(
+            hasItem(EXPIRY_DATE_PAST)))
+        .andExpect(jsonPath("$.errors[?(@.field == 'currency')].message").value(
+            hasItem(CURRENCY_INVALID)));
   }
 
   @Test
@@ -86,16 +121,17 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
 
     client.postRaw("/api/payments", malformedJson)
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("Malformed JSON request"));
+        .andExpect(jsonPath("$.message").value(MALFORMED_JSON));
   }
 
   @Test
   void whenUnexpectedExceptionOccursThenReturnInternalServerError() throws Exception {
     PostPaymentRequest request = createValidRequest();
-    when(paymentGatewayService.processPayment(any())).thenThrow(new RuntimeException("Simulated internal error"));
+    when(paymentGatewayService.processPayment(any())).thenThrow(
+        new RuntimeException("Simulated internal error"));
 
     client.post("/api/payments", request)
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.message").value("An internal error occurred"));
+        .andExpect(jsonPath("$.message").value(INTERNAL_ERROR));
   }
 }

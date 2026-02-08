@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.api.controller;
 
+import com.checkout.payment.gateway.api.dto.GetPaymentResponse;
 import com.checkout.payment.gateway.api.dto.PostPaymentRequest;
 import com.checkout.payment.gateway.api.dto.PostPaymentResponse;
 import com.checkout.payment.gateway.api.mapper.PaymentMapper;
@@ -23,19 +24,21 @@ public class PaymentGatewayController {
   private final PaymentGatewayService paymentGatewayService;
   private final PaymentMapper paymentMapper;
 
-  public PaymentGatewayController(PaymentGatewayService paymentGatewayService, PaymentMapper paymentMapper) {
+  public PaymentGatewayController(PaymentGatewayService paymentGatewayService,
+      PaymentMapper paymentMapper) {
     this.paymentGatewayService = paymentGatewayService;
     this.paymentMapper = paymentMapper;
   }
 
   @GetMapping("/payment/{id}")
-  public ResponseEntity<PostPaymentResponse> getPostPaymentEventById(@PathVariable UUID id) {
+  public ResponseEntity<GetPaymentResponse> getPostPaymentEventById(@PathVariable UUID id) {
     Payment payment = paymentGatewayService.getPaymentById(id);
-    return new ResponseEntity<>(paymentMapper.toPostPaymentResponse(payment), HttpStatus.OK);
+    return new ResponseEntity<>(paymentMapper.toGetPaymentResponse(payment), HttpStatus.OK);
   }
 
   @PostMapping("/payments")
-  public ResponseEntity<PostPaymentResponse> processPayment(@Valid @RequestBody PostPaymentRequest paymentRequest) {
+  public ResponseEntity<PostPaymentResponse> processPayment(
+      @Valid @RequestBody PostPaymentRequest paymentRequest) {
     Payment payment = paymentMapper.toDomain(paymentRequest);
     Payment processedPayment = paymentGatewayService.processPayment(payment);
     PostPaymentResponse response = paymentMapper.toPostPaymentResponse(processedPayment);

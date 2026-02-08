@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.model;
 
+import com.checkout.payment.gateway.validation.ValidPaymentExpiry;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -10,6 +11,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 
+@ValidPaymentExpiry
 public class PostPaymentRequest implements Serializable {
 
   @NotBlank
@@ -28,7 +30,6 @@ public class PostPaymentRequest implements Serializable {
   @JsonProperty("expiry_year")
   private int expiryYear;
 
-  // TODO: Implement custom validator to ensure expiry_month + expiry_year is in the future
   @NotBlank
   @Pattern(regexp = "^(USD|GBP|EUR)$", message = "Currency must be one of: USD, GBP, EUR")
   private String currency;

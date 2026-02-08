@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.controller;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -53,6 +54,30 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
     client.post("/api/payments", request)
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("size must be between 3 and 4"));
+  }
+
+  @Test
+  void whenExpiryDateIsInThePastThenReturnBadRequest() throws Exception {
+    PostPaymentRequest request = createValidRequest();
+    request.setExpiryMonth(1);
+    request.setExpiryYear(2020);
+
+    client.post("/api/payments", request)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("The card expiry date must be in the future"));
+  }
+
+  @Test
+  void whenMultipleErrorsHappenThenReturnBadRequestWithBothErrors() throws Exception {
+    PostPaymentRequest request = createValidRequest();
+    request.setExpiryMonth(1);
+    request.setExpiryYear(2020);
+    request.setCurrency("JPY");
+
+    client.post("/api/payments", request)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value(containsString("The card expiry date must be in the future")))
+        .andExpect(jsonPath("$.message").value(containsString("Currency must be one of: USD, GBP, EUR")));
   }
 
   @Test

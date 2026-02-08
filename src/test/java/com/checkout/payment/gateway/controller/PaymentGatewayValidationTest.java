@@ -85,7 +85,6 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
             jsonPath("$.errors[?(@.field == 'cvv')].message").value(hasItem(CVV_NUMERIC)));
   }
 
-
   @Test
   void whenExpiryDateIsInThePastThenReturnBadRequest() throws Exception {
     PostPaymentRequest request = createValidRequest();

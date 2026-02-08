@@ -11,12 +11,10 @@ public class PaymentMapper {
 
   public Payment toDomain(PostPaymentRequest request) {
     Payment payment = new Payment();
-    payment.setCardNumber(request.getCardNumber());
     payment.setExpiryMonth(request.getExpiryMonth());
     payment.setExpiryYear(request.getExpiryYear());
     payment.setCurrency(request.getCurrency());
     payment.setAmount(request.getAmount());
-    payment.setCvv(request.getCvv());
     
     if (request.getCardNumber() != null && request.getCardNumber().length() >= 4) {
       payment.setCardNumberLastFour(request.getCardNumber().substring(request.getCardNumber().length() - 4));

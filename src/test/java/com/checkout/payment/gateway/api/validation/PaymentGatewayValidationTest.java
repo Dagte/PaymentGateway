@@ -15,9 +15,9 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.checkout.payment.gateway.BasePaymentGatewayTest;
 import com.checkout.payment.gateway.api.dto.PostPaymentRequest;
 import com.checkout.payment.gateway.core.service.PaymentGatewayService;
-import com.checkout.payment.gateway.BasePaymentGatewayTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -127,7 +127,7 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
   @Test
   void whenUnexpectedExceptionOccursThenReturnInternalServerError() throws Exception {
     PostPaymentRequest request = createValidRequest();
-    when(paymentGatewayService.processPayment(any())).thenThrow(
+    when(paymentGatewayService.processPayment(any(), any(), any())).thenThrow(
         new RuntimeException("Simulated internal error"));
 
     client.post("/api/payments", request)

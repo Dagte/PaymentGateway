@@ -27,8 +27,8 @@ public class BankSimulatorClient implements AcquiringBankClient {
   }
 
   @Override
-  public void process(Payment payment) {
-    BankPaymentRequest bankRequest = BankRequestMapper.mapToBankRequest(payment);
+  public void process(Payment payment, String cardNumber, String cvv) {
+    BankPaymentRequest bankRequest = BankRequestMapper.mapToBankRequest(payment, cardNumber, cvv);
     
     try {
       BankPaymentResponse bankResponse = restTemplate.postForObject(bankUrl, bankRequest, BankPaymentResponse.class);

@@ -4,10 +4,10 @@ package com.checkout.payment.gateway.api.controller;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.checkout.payment.gateway.BasePaymentGatewayTest;
 import com.checkout.payment.gateway.common.enums.PaymentStatus;
 import com.checkout.payment.gateway.core.model.Payment;
 import com.checkout.payment.gateway.infrastructure.persistence.PaymentsRepository;
-import com.checkout.payment.gateway.BasePaymentGatewayTest;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

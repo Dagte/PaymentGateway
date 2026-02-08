@@ -6,26 +6,22 @@ import java.util.UUID;
 public class Payment {
   private UUID id;
   private PaymentStatus status;
-  private String cardNumber;
   private String cardNumberLastFour;
   private int expiryMonth;
   private int expiryYear;
   private String currency;
   private int amount;
-  private String cvv;
 
   public Payment() {}
 
-  public Payment(UUID id, PaymentStatus status, String cardNumber, String cardNumberLastFour, int expiryMonth, int expiryYear, String currency, int amount, String cvv) {
+  public Payment(UUID id, PaymentStatus status, String cardNumberLastFour, int expiryMonth, int expiryYear, String currency, int amount) {
     this.id = id;
     this.status = status;
-    this.cardNumber = cardNumber;
     this.cardNumberLastFour = cardNumberLastFour;
     this.expiryMonth = expiryMonth;
     this.expiryYear = expiryYear;
     this.currency = currency;
     this.amount = amount;
-    this.cvv = cvv;
   }
 
   public UUID getId() {
@@ -42,14 +38,6 @@ public class Payment {
 
   public void setStatus(PaymentStatus status) {
     this.status = status;
-  }
-
-  public String getCardNumber() {
-    return cardNumber;
-  }
-
-  public void setCardNumber(String cardNumber) {
-    this.cardNumber = cardNumber;
   }
 
   public String getCardNumberLastFour() {
@@ -90,13 +78,5 @@ public class Payment {
 
   public void setAmount(int amount) {
     this.amount = amount;
-  }
-
-  public String getCvv() {
-    return cvv;
-  }
-
-  public void setCvv(String cvv) {
-    this.cvv = cvv;
   }
 }

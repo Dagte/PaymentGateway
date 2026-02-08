@@ -8,15 +8,14 @@ public final class BankRequestMapper {
   private BankRequestMapper() {
   }
 
-  public static BankPaymentRequest mapToBankRequest(Payment domain) {
+  public static BankPaymentRequest mapToBankRequest(Payment domain, String cardNumber, String cvv) {
     String expiryDate = String.format("%02d/%d", domain.getExpiryMonth(), domain.getExpiryYear());
     return new BankPaymentRequest(
-        domain.getCardNumber(),
+        cardNumber,
         expiryDate,
         domain.getCurrency(),
         domain.getAmount(),
-        domain.getCvv()
+        cvv
     );
   }
-
 }

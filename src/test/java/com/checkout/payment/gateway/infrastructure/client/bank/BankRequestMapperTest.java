@@ -11,14 +11,12 @@ class BankRequestMapperTest {
   @Test
   void shouldMapDomainToBankRequestCorrectly() {
     Payment payment = new Payment();
-    payment.setCardNumber("1234567890123456");
     payment.setExpiryMonth(12);
     payment.setExpiryYear(2030);
     payment.setCurrency("USD");
     payment.setAmount(1000);
-    payment.setCvv("123");
 
-    BankPaymentRequest request = BankRequestMapper.mapToBankRequest(payment);
+    BankPaymentRequest request = BankRequestMapper.mapToBankRequest(payment, "1234567890123456", "123");
 
     assertEquals("1234567890123456", request.cardNumber());
     assertEquals("12/2030", request.expiryDate());
@@ -33,7 +31,7 @@ class BankRequestMapperTest {
     payment.setExpiryMonth(5);
     payment.setExpiryYear(2026);
 
-    BankPaymentRequest request = BankRequestMapper.mapToBankRequest(payment);
+    BankPaymentRequest request = BankRequestMapper.mapToBankRequest(payment, "1234", "123");
 
     assertEquals("05/2026", request.expiryDate());
   }

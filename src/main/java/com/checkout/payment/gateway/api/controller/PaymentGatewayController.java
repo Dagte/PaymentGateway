@@ -40,7 +40,8 @@ public class PaymentGatewayController {
   public ResponseEntity<PostPaymentResponse> processPayment(
       @Valid @RequestBody PostPaymentRequest paymentRequest) {
     Payment payment = paymentMapper.toDomain(paymentRequest);
-    Payment processedPayment = paymentGatewayService.processPayment(payment);
+    Payment processedPayment = paymentGatewayService.processPayment(payment,
+        paymentRequest.getCardNumber(), paymentRequest.getCvv());
     PostPaymentResponse response = paymentMapper.toPostPaymentResponse(processedPayment);
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }

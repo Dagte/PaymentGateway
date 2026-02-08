@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.api.mapper;
 
+import com.checkout.payment.gateway.api.dto.BasePaymentResponse;
 import com.checkout.payment.gateway.api.dto.GetPaymentResponse;
 import com.checkout.payment.gateway.api.dto.PostPaymentRequest;
 import com.checkout.payment.gateway.api.dto.PostPaymentResponse;
@@ -15,28 +16,21 @@ public class PaymentMapper {
     payment.setExpiryYear(request.getExpiryYear());
     payment.setCurrency(request.getCurrency());
     payment.setAmount(request.getAmount());
-    
-    if (request.getCardNumber() != null && request.getCardNumber().length() >= 4) {
-      payment.setCardNumberLastFour(request.getCardNumber().substring(request.getCardNumber().length() - 4));
-    }
-    
+
+    payment.setCardNumberLastFour(request.getCardNumber().substring(request.getCardNumber().length() - 4));
+
     return payment;
   }
 
   public PostPaymentResponse toPostPaymentResponse(Payment domain) {
-    PostPaymentResponse response = new PostPaymentResponse();
-    response.setId(domain.getId());
-    response.setStatus(domain.getStatus());
-    response.setCardNumberLastFour(domain.getCardNumberLastFour());
-    response.setExpiryMonth(domain.getExpiryMonth());
-    response.setExpiryYear(domain.getExpiryYear());
-    response.setCurrency(domain.getCurrency());
-    response.setAmount(domain.getAmount());
-    return response;
+    return mapToBaseResponse(domain, new PostPaymentResponse());
   }
 
   public GetPaymentResponse toGetPaymentResponse(Payment domain) {
-    GetPaymentResponse response = new GetPaymentResponse();
+    return mapToBaseResponse(domain, new GetPaymentResponse());
+  }
+
+  private <T extends BasePaymentResponse> T mapToBaseResponse(Payment domain, T response) {
     response.setId(domain.getId());
     response.setStatus(domain.getStatus());
     response.setCardNumberLastFour(domain.getCardNumberLastFour());

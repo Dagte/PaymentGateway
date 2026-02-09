@@ -21,31 +21,34 @@ public class BankSimulatorClient implements AcquiringBankClient {
   private final RestTemplate restTemplate;
   private final String bankUrl;
 
-  public BankSimulatorClient(RestTemplate restTemplate, @Value("${bank.simulator.url}") String bankUrl) {
+  public BankSimulatorClient(RestTemplate restTemplate,
+      @Value("${bank.simulator.url}") String bankUrl) {
     this.restTemplate = restTemplate;
     this.bankUrl = bankUrl;
   }
 
   @Override
-  public void process(Payment payment, String cardNumber, String cvv) {
+  public PaymentStatus process(Payment payment, String cardNumber, String cvv) {
     BankPaymentRequest bankRequest = BankRequestMapper.mapToBankRequest(payment, cardNumber, cvv);
-    
+
     try {
-      BankPaymentResponse bankResponse = restTemplate.postForObject(bankUrl, bankRequest, BankPaymentResponse.class);
-      
+      BankPaymentResponse bankResponse = restTemplate.postForObject(bankUrl, bankRequest,
+          BankPaymentResponse.class);
+
       if (bankResponse != null && bankResponse.authorized()) {
-        payment.setStatus(PaymentStatus.AUTHORIZED);
+        return PaymentStatus.AUTHORIZED;
       } else {
-        payment.setStatus(PaymentStatus.DECLINED);
+        return PaymentStatus.DECLINED;
       }
-      
+
     } catch (HttpServerErrorException e) {
       LOG.error("Bank server error (5xx) for payment {}: {}", payment.getId(), e.getStatusCode());
       // TODO: Implement Resilience4j Retry mechanism here to handle transient failures before giving up
       throw new RuntimeException("Acquiring bank is currently experiencing issues", e);
     } catch (HttpClientErrorException e) {
-      LOG.error("Bank rejected request (4xx) for payment {}: {}", payment.getId(), e.getStatusCode());
-      payment.setStatus(PaymentStatus.REJECTED);
+      LOG.error("Bank rejected request (4xx) for payment {}: {}", payment.getId(),
+          e.getStatusCode());
+      return PaymentStatus.REJECTED;
     } catch (Exception e) {
       LOG.error("Unexpected network error calling bank for payment {}", payment.getId(), e);
       throw new RuntimeException("Communication failure with the acquiring bank", e);

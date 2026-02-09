@@ -1,5 +1,6 @@
 package com.checkout.payment.gateway.core.service;
 
+import com.checkout.payment.gateway.common.enums.PaymentStatus;
 import com.checkout.payment.gateway.common.exception.EventProcessingException;
 import com.checkout.payment.gateway.core.model.Payment;
 import com.checkout.payment.gateway.infrastructure.persistence.PaymentsRepository;
@@ -12,7 +13,8 @@ public class PaymentGatewayService {
   private final PaymentsRepository paymentsRepository;
   private final AcquiringBankClient bankClient;
 
-  public PaymentGatewayService(PaymentsRepository paymentsRepository, AcquiringBankClient bankClient) {
+  public PaymentGatewayService(PaymentsRepository paymentsRepository,
+      AcquiringBankClient bankClient) {
     this.paymentsRepository = paymentsRepository;
     this.bankClient = bankClient;
   }
@@ -23,11 +25,9 @@ public class PaymentGatewayService {
 
   public Payment processPayment(Payment payment, String cardNumber, String cvv) {
     payment.setId(UUID.randomUUID());
-    
-    bankClient.process(payment, cardNumber, cvv);
-    
+    PaymentStatus paymentStatus = bankClient.process(payment, cardNumber, cvv);
+    payment.setStatus(paymentStatus);
     paymentsRepository.add(payment);
-    
     return payment;
   }
 }

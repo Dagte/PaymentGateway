@@ -6,6 +6,7 @@ import static com.checkout.payment.gateway.api.validation.ValidationErrorMessage
 
 import com.checkout.payment.gateway.api.dto.ErrorResponse;
 import com.checkout.payment.gateway.common.exception.EventProcessingException;
+import com.checkout.payment.gateway.common.exception.PaymentNotFoundException;
 import java.util.List;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -21,6 +22,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class CommonExceptionHandler {
 
   private static final Logger LOG = LoggerFactory.getLogger(CommonExceptionHandler.class);
+
+  @ExceptionHandler(PaymentNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handlePaymentNotFoundException(PaymentNotFoundException ex) {
+    LOG.error("Payment not found: {}", ex.getMessage());
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
+  }
 
   @ExceptionHandler(EventProcessingException.class)
   public ResponseEntity<ErrorResponse> handleException(EventProcessingException ex) {

@@ -67,7 +67,6 @@ class PaymentGatewayControllerTest extends BasePaymentGatewayTest {
     String secondResponse = secondResult.getResponse().getContentAsString();
 
     assertThat(firstResponse).isEqualTo(secondResponse);
-    mockBankServer.expect(ExpectedCount.once(), requestTo(bankUrl));
     mockBankServer.verify();
   }
 

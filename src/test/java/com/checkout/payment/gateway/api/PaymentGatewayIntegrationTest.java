@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withException;
 import org.springframework.web.client.RestTemplate;
 
 class PaymentGatewayIntegrationTest extends BasePaymentGatewayTest {
@@ -70,16 +72,46 @@ class PaymentGatewayIntegrationTest extends BasePaymentGatewayTest {
   }
 
   @Test
-  void shouldHandleBankServerError() throws Exception {
+  void shouldHandleBankServiceUnavailable() throws Exception {
     PostPaymentRequest request = createValidRequest();
 
-    mockBankServer.expect(requestTo(bankUrl))
+    mockBankServer.expect(ExpectedCount.between(1, 3), requestTo(bankUrl))
+        .andExpect(method(HttpMethod.POST))
+        .andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
+
+    client.post("/api/payments", request)
+        .andExpect(status().isServiceUnavailable())
+        .andExpect(jsonPath("$.message").value("Acquiring bank is currently unavailable"));
+
+    mockBankServer.verify();
+  }
+
+  @Test
+  void shouldHandleBankTimeout() throws Exception {
+    PostPaymentRequest request = createValidRequest();
+
+    mockBankServer.expect(ExpectedCount.between(1, 3), requestTo(bankUrl))
+        .andExpect(method(HttpMethod.POST))
+        .andRespond(withException(new java.net.SocketTimeoutException("Timeout")));
+
+    client.post("/api/payments", request)
+        .andExpect(status().isGatewayTimeout())
+        .andExpect(jsonPath("$.message").value("Communication with acquiring bank timed out"));
+
+    mockBankServer.verify();
+  }
+
+  @Test
+  void shouldHandleBankInternalError() throws Exception {
+    PostPaymentRequest request = createValidRequest();
+
+    mockBankServer.expect(ExpectedCount.between(1, 3), requestTo(bankUrl))
         .andExpect(method(HttpMethod.POST))
         .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
     client.post("/api/payments", request)
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.message").value("An internal error occurred"));
+        .andExpect(status().isBadGateway())
+        .andExpect(jsonPath("$.message").value("Acquiring bank returned an internal error"));
 
     mockBankServer.verify();
   }

@@ -22,6 +22,13 @@ public class PaymentGatewayTestClient {
         .content(objectMapper.writeValueAsString(requestBody)));
   }
 
+  public ResultActions post(String url, Object requestBody, String idempotencyKey) throws Exception {
+    return mvc.perform(MockMvcRequestBuilders.post(url)
+        .header("Idempotency-Key", idempotencyKey)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(requestBody)));
+  }
+
   public ResultActions postRaw(String url, String rawBody) throws Exception {
     return mvc.perform(MockMvcRequestBuilders.post(url)
         .contentType(MediaType.APPLICATION_JSON)

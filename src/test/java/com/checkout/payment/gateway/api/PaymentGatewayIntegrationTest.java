@@ -22,9 +22,6 @@ import org.springframework.web.client.RestTemplate;
 
 class PaymentGatewayIntegrationTest extends BasePaymentGatewayTest {
 
-  public static final String BANK_UNAUTHORIZED_RESPONSE_JSON = "{\"authorized\": false}";
-  private static final String BANK_AUTHORIZED_RESPONSE_JSON = "{\"authorized\": true, \"authorization_code\": \"auth-123\"}";
-  
   @Autowired
   private RestTemplate restTemplate;
 

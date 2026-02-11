@@ -23,11 +23,42 @@ public class PaymentGatewayService {
     return paymentsRepository.get(id).orElseThrow(() -> new PaymentNotFoundException(id));
   }
 
-  public Payment processPayment(Payment payment, String cardNumber, String cvv) {
-    payment.setId(UUID.randomUUID());
-    PaymentStatus paymentStatus = bankClient.process(payment, cardNumber, cvv);
+  public Payment processPayment(Payment payment, String cardNumber, String cvv,
+      String idempotencyKey) {
+    var activePayment = getOrCreatePayment(payment, idempotencyKey);
+
+    if (activePayment.getStatus() != PaymentStatus.PENDING) {
+      return activePayment;
+    }
+
+    PaymentStatus paymentStatus = bankClient.process(activePayment, cardNumber, cvv);
     payment.setStatus(paymentStatus);
     paymentsRepository.add(payment);
     return payment;
   }
+
+  private Payment getOrCreatePayment(Payment payment, String idempotencyKey) {
+    if (idempotencyKey != null) {
+      var existingId = paymentsRepository.findIdByIdempotencyKey(idempotencyKey);
+
+      if (existingId.isPresent()) {
+        return paymentsRepository.get(existingId.get())
+            .orElseThrow(() -> new IllegalStateException("Index exists but Payment missing"));
+      }
+    }
+
+    return initializeNewPayment(payment, idempotencyKey);
+  }
+
+  private Payment initializeNewPayment(Payment payment, String idempotencyKey) {
+    payment.setId(UUID.randomUUID());
+    payment.setStatus(PaymentStatus.PENDING);
+    paymentsRepository.add(payment);
+
+    if (idempotencyKey != null) {
+      paymentsRepository.saveIdempotencyKey(idempotencyKey, payment.getId());
+    }
+    return payment;
+  }
+
 }

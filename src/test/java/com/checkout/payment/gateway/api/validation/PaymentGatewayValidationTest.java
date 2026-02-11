@@ -127,7 +127,7 @@ class PaymentGatewayValidationTest extends BasePaymentGatewayTest {
   @Test
   void whenUnexpectedExceptionOccursThenReturnInternalServerError() throws Exception {
     PostPaymentRequest request = createValidRequest();
-    when(paymentGatewayService.processPayment(any(), any(), any())).thenThrow(
+    when(paymentGatewayService.processPayment(any(), any(), any(), any())).thenThrow(
         new RuntimeException("Simulated internal error"));
 
     client.post("/api/payments", request)

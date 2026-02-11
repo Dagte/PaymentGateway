@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 public class PaymentsRepository {
 
   private final ConcurrentHashMap<UUID, Payment> payments = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, UUID> idempotencyMappings = new ConcurrentHashMap<>();
 
   public void add(Payment payment) {
     payments.put(payment.getId(), payment);
@@ -17,6 +18,14 @@ public class PaymentsRepository {
 
   public Optional<Payment> get(UUID id) {
     return Optional.ofNullable(payments.get(id));
+  }
+
+  public void saveIdempotencyKey(String key, UUID paymentId) {
+    idempotencyMappings.put(key, paymentId);
+  }
+
+  public Optional<UUID> findIdByIdempotencyKey(String key) {
+    return Optional.ofNullable(idempotencyMappings.get(key));
   }
 
   public int count() {

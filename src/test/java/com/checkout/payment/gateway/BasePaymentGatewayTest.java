@@ -13,6 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 public abstract class BasePaymentGatewayTest {
 
+  protected static final String BANK_UNAUTHORIZED_RESPONSE_JSON = "{\"authorized\": false}";
+  protected static final String BANK_AUTHORIZED_RESPONSE_JSON = "{\"authorized\": true, \"authorization_code\": \"auth-123\"}";
+
   @Autowired
   protected MockMvc mvc;
 

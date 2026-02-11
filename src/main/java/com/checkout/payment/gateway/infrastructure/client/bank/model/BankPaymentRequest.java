@@ -9,5 +9,6 @@ public record BankPaymentRequest(
     String expiryDate,
     String currency,
     int amount,
-    String cvv
+    String cvv,
+    String paymentReference
 ) {}

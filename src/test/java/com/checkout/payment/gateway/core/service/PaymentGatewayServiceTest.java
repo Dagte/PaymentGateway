@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +38,7 @@ class PaymentGatewayServiceTest {
   }
 
   @Test
-  void whenProcessPaymentThenAssignsIdCallsBankAndStoresInRepository() {
+  void whenProcessPaymentWithoutKeyThenAssignsIdCallsBankAndStoresInRepository() {
     Payment payment = new Payment();
     payment.setAmount(100);
     String cardNumber = "1234567890123456";
@@ -45,13 +47,30 @@ class PaymentGatewayServiceTest {
     when(bankClient.process(any(Payment.class), eq(cardNumber), eq(cvv)))
         .thenReturn(PaymentStatus.AUTHORIZED);
 
-    Payment result = paymentGatewayService.processPayment(payment, cardNumber, cvv);
+    Payment result = paymentGatewayService.processPayment(payment, cardNumber, cvv, null);
 
     assertThat(result.getId()).isNotNull();
     assertThat(result.getStatus()).isEqualTo(PaymentStatus.AUTHORIZED);
     
     verify(bankClient).process(payment, cardNumber, cvv);
-    verify(paymentsRepository).add(payment);
+    verify(paymentsRepository, times(2)).add(payment);
+  }
+
+  @Test
+  void whenProcessPaymentWithExistingKeyThenReturnsCachedPayment() {
+    String key = "test-key";
+    UUID id = UUID.randomUUID();
+    Payment existingPayment = new Payment();
+    existingPayment.setId(id);
+    existingPayment.setStatus(PaymentStatus.AUTHORIZED);
+
+    when(paymentsRepository.findIdByIdempotencyKey(key)).thenReturn(Optional.of(id));
+    when(paymentsRepository.get(id)).thenReturn(Optional.of(existingPayment));
+
+    Payment result = paymentGatewayService.processPayment(new Payment(), "1234", "123", key);
+
+    assertThat(result).isEqualTo(existingPayment);
+    verify(bankClient, never()).process(any(), any(), any());
   }
 
   @Test

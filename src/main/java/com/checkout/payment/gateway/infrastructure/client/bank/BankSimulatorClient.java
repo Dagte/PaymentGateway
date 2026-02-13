@@ -7,7 +7,7 @@ import static com.checkout.payment.gateway.api.validation.ValidationErrorMessage
 import com.checkout.payment.gateway.common.enums.PaymentStatus;
 import com.checkout.payment.gateway.common.exception.BankTimeoutException;
 import com.checkout.payment.gateway.common.exception.BankUnavailableException;
-import com.checkout.payment.gateway.common.exception.BankUpstreamErrorException;
+import com.checkout.payment.gateway.common.exception.BankServerException;
 import com.checkout.payment.gateway.core.model.Payment;
 import com.checkout.payment.gateway.core.service.AcquiringBankClient;
 import com.checkout.payment.gateway.infrastructure.client.bank.model.BankPaymentRequest;
@@ -59,7 +59,7 @@ public class BankSimulatorClient implements AcquiringBankClient {
       if (e.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) {
         throw new BankUnavailableException(BANK_SERVICE_UNAVAILABLE, e);
       }
-      throw new BankUpstreamErrorException(BANK_UPSTREAM_ERROR, e);
+      throw new BankServerException(BANK_UPSTREAM_ERROR, e);
     } catch (ResourceAccessException e) {
       LOG.error("Network timeout or connection error for payment {}", payment.getId(), e);
       throw new BankTimeoutException(BANK_TIMEOUT, e);

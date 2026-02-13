@@ -10,7 +10,7 @@ import static com.checkout.payment.gateway.api.validation.ValidationErrorMessage
 import com.checkout.payment.gateway.api.dto.ErrorResponse;
 import com.checkout.payment.gateway.common.exception.BankTimeoutException;
 import com.checkout.payment.gateway.common.exception.BankUnavailableException;
-import com.checkout.payment.gateway.common.exception.BankUpstreamErrorException;
+import com.checkout.payment.gateway.common.exception.BankServerException;
 import com.checkout.payment.gateway.common.exception.EventProcessingException;
 import com.checkout.payment.gateway.common.exception.PaymentNotFoundException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -37,7 +37,8 @@ public class CommonExceptionHandler {
   }
 
   @ExceptionHandler(BankUnavailableException.class)
-  public ResponseEntity<ErrorResponse> handleBankUnavailableException(BankUnavailableException ex) {
+  public ResponseEntity<ErrorResponse> handleBankUnavailableException(
+      BankUnavailableException ex) {
     LOG.error("Bank unavailable: {}", ex.getMessage());
     return new ResponseEntity<>(new ErrorResponse(BANK_SERVICE_UNAVAILABLE), HttpStatus.SERVICE_UNAVAILABLE);
   }
@@ -54,8 +55,9 @@ public class CommonExceptionHandler {
     return new ResponseEntity<>(new ErrorResponse(BANK_TIMEOUT), HttpStatus.GATEWAY_TIMEOUT);
   }
 
-  @ExceptionHandler(BankUpstreamErrorException.class)
-  public ResponseEntity<ErrorResponse> handleBankUpstreamErrorException(BankUpstreamErrorException ex) {
+  @ExceptionHandler(BankServerException.class)
+  public ResponseEntity<ErrorResponse> handleBankUpstreamErrorException(
+      BankServerException ex) {
     LOG.error("Bank upstream error: {}", ex.getMessage());
     return new ResponseEntity<>(new ErrorResponse(BANK_UPSTREAM_ERROR), HttpStatus.BAD_GATEWAY);
   }

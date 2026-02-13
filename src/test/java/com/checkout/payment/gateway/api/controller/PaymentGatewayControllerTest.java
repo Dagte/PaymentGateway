@@ -2,14 +2,17 @@ package com.checkout.payment.gateway.api.controller;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.checkout.payment.gateway.BasePaymentGatewayTest;
+import com.checkout.payment.gateway.api.dto.PostPaymentRequest;
 import com.checkout.payment.gateway.common.enums.PaymentStatus;
 import com.checkout.payment.gateway.core.model.Payment;
 import com.checkout.payment.gateway.infrastructure.persistence.PaymentsRepository;
-import com.checkout.payment.gateway.api.dto.PostPaymentRequest;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,14 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.client.RestTemplate;
-
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class PaymentGatewayControllerTest extends BasePaymentGatewayTest {
 
@@ -61,6 +59,9 @@ class PaymentGatewayControllerTest extends BasePaymentGatewayTest {
 
     MvcResult secondResult = client.post("/api/payments", request, idempotencyKey)
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value(PaymentStatus.AUTHORIZED.getName()))
+        .andExpect(jsonPath("$.amount").value(request.getAmount()))
+        .andExpect(jsonPath("$.currency").value(request.getCurrency()))
         .andReturn();
 
     String firstResponse = firstResult.getResponse().getContentAsString();

@@ -105,13 +105,34 @@ class PaymentGatewayIntegrationTest extends BasePaymentGatewayTest {
   void shouldHandleBankInternalError() throws Exception {
     PostPaymentRequest request = createValidRequest();
 
-    mockBankServer.expect(ExpectedCount.between(1, 3), requestTo(bankUrl))
+    mockBankServer.expect(ExpectedCount.once(), requestTo(bankUrl))
+        .andExpect(method(HttpMethod.POST))
+        .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
+    
+    mockBankServer.expect(ExpectedCount.once(), requestTo(bankUrl))
+        .andExpect(method(HttpMethod.POST))
+        .andRespond(withSuccess(BANK_AUTHORIZED_RESPONSE_JSON, MediaType.APPLICATION_JSON));
+
+    client.post("/api/payments", request)
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value(PaymentStatus.AUTHORIZED.getName()));
+
+    mockBankServer.verify();
+  }
+
+  @Test
+  void shouldTripCircuitBreakerAfterRepeatedFailures() throws Exception {
+    PostPaymentRequest request = createValidRequest();
+
+    mockBankServer.expect(ExpectedCount.times(5), requestTo(bankUrl))
         .andExpect(method(HttpMethod.POST))
         .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
+    client.post("/api/payments", request).andExpect(status().isBadGateway());
+
     client.post("/api/payments", request)
-        .andExpect(status().isBadGateway())
-        .andExpect(jsonPath("$.message").value("Acquiring bank returned an internal error"));
+        .andExpect(status().isServiceUnavailable())
+        .andExpect(jsonPath("$.message").value("Acquiring bank is currently unavailable"));
 
     mockBankServer.verify();
   }

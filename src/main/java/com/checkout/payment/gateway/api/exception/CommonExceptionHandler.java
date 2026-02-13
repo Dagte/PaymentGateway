@@ -11,6 +11,7 @@ import com.checkout.payment.gateway.common.exception.BankUnavailableException;
 import com.checkout.payment.gateway.common.exception.BankUpstreamErrorException;
 import com.checkout.payment.gateway.common.exception.EventProcessingException;
 import com.checkout.payment.gateway.common.exception.PaymentNotFoundException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import java.util.List;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -36,6 +37,12 @@ public class CommonExceptionHandler {
   @ExceptionHandler(BankUnavailableException.class)
   public ResponseEntity<ErrorResponse> handleBankUnavailableException(BankUnavailableException ex) {
     LOG.error("Bank unavailable: {}", ex.getMessage());
+    return new ResponseEntity<>(new ErrorResponse(BANK_SERVICE_UNAVAILABLE), HttpStatus.SERVICE_UNAVAILABLE);
+  }
+
+  @ExceptionHandler(CallNotPermittedException.class)
+  public ResponseEntity<ErrorResponse> handleCallNotPermittedException(CallNotPermittedException ex) {
+    LOG.error("Circuit breaker is open: {}", ex.getMessage());
     return new ResponseEntity<>(new ErrorResponse(BANK_SERVICE_UNAVAILABLE), HttpStatus.SERVICE_UNAVAILABLE);
   }
 

@@ -8,6 +8,7 @@ import com.checkout.payment.gateway.core.model.Payment;
 import com.checkout.payment.gateway.core.service.AcquiringBankClient;
 import com.checkout.payment.gateway.infrastructure.client.bank.model.BankPaymentRequest;
 import com.checkout.payment.gateway.infrastructure.client.bank.model.BankPaymentResponse;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ public class BankSimulatorClient implements AcquiringBankClient {
 
   @Override
   @Retry(name = "bankRetry")
+  @CircuitBreaker(name = "bankCircuitBreaker")
   public PaymentStatus process(Payment payment, String cardNumber, String cvv) {
     BankPaymentRequest bankRequest = BankRequestMapper.mapToBankRequest(payment, cardNumber, cvv);
 

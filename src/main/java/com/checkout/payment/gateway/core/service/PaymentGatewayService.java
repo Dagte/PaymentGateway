@@ -32,13 +32,15 @@ public class PaymentGatewayService {
     }
 
     PaymentStatus paymentStatus = bankClient.process(activePayment, cardNumber, cvv);
-    payment.setStatus(paymentStatus);
-    paymentsRepository.add(payment);
-    return payment;
+    activePayment.setStatus(paymentStatus);
+    paymentsRepository.add(activePayment);
+    return activePayment;
   }
 
   private Payment getOrCreatePayment(Payment payment, String idempotencyKey) {
     if (idempotencyKey != null) {
+      // TODO: This check-then-act sequence is not atomic. In a multi-node environment, 
+      // use a distributed lock or atomic computeIfAbsent to prevent duplicate bank calls.
       var existingId = paymentsRepository.findIdByIdempotencyKey(idempotencyKey);
 
       if (existingId.isPresent()) {

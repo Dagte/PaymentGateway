@@ -1,6 +1,8 @@
 package com.checkout.payment.gateway.api.exception;
 
 import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.BANK_SERVICE_UNAVAILABLE;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.BANK_TIMEOUT;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.BANK_UPSTREAM_ERROR;
 import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.INTERNAL_ERROR;
 import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.MALFORMED_JSON;
 import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.VALIDATION_FAILED;
@@ -49,13 +51,13 @@ public class CommonExceptionHandler {
   @ExceptionHandler(BankTimeoutException.class)
   public ResponseEntity<ErrorResponse> handleBankTimeoutException(BankTimeoutException ex) {
     LOG.error("Bank timeout: {}", ex.getMessage());
-    return new ResponseEntity<>(new ErrorResponse("Communication with acquiring bank timed out"), HttpStatus.GATEWAY_TIMEOUT);
+    return new ResponseEntity<>(new ErrorResponse(BANK_TIMEOUT), HttpStatus.GATEWAY_TIMEOUT);
   }
 
   @ExceptionHandler(BankUpstreamErrorException.class)
   public ResponseEntity<ErrorResponse> handleBankUpstreamErrorException(BankUpstreamErrorException ex) {
     LOG.error("Bank upstream error: {}", ex.getMessage());
-    return new ResponseEntity<>(new ErrorResponse("Acquiring bank returned an internal error"), HttpStatus.BAD_GATEWAY);
+    return new ResponseEntity<>(new ErrorResponse(BANK_UPSTREAM_ERROR), HttpStatus.BAD_GATEWAY);
   }
 
   @ExceptionHandler(EventProcessingException.class)

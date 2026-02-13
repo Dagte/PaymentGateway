@@ -1,5 +1,9 @@
 package com.checkout.payment.gateway.infrastructure.client.bank;
 
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.BANK_SERVICE_UNAVAILABLE;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.BANK_TIMEOUT;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.BANK_UPSTREAM_ERROR;
+
 import com.checkout.payment.gateway.common.enums.PaymentStatus;
 import com.checkout.payment.gateway.common.exception.BankTimeoutException;
 import com.checkout.payment.gateway.common.exception.BankUnavailableException;
@@ -53,12 +57,12 @@ public class BankSimulatorClient implements AcquiringBankClient {
     } catch (HttpServerErrorException e) {
       LOG.error("Bank server error (5xx) for payment {}: {}", payment.getId(), e.getStatusCode());
       if (e.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) {
-        throw new BankUnavailableException("Acquiring bank is temporarily unavailable", e);
+        throw new BankUnavailableException(BANK_SERVICE_UNAVAILABLE, e);
       }
-      throw new BankUpstreamErrorException("Acquiring bank returned an error", e);
+      throw new BankUpstreamErrorException(BANK_UPSTREAM_ERROR, e);
     } catch (ResourceAccessException e) {
       LOG.error("Network timeout or connection error for payment {}", payment.getId(), e);
-      throw new BankTimeoutException("Communication timeout with the acquiring bank", e);
+      throw new BankTimeoutException(BANK_TIMEOUT, e);
     } catch (HttpClientErrorException e) {
       LOG.error("Bank rejected request (4xx) for payment {}: {}", payment.getId(),
           e.getStatusCode());

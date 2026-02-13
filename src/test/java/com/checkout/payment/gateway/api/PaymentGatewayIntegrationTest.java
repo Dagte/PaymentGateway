@@ -1,5 +1,7 @@
 package com.checkout.payment.gateway.api;
 
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.BANK_SERVICE_UNAVAILABLE;
+import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.BANK_TIMEOUT;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
@@ -81,7 +83,7 @@ class PaymentGatewayIntegrationTest extends BasePaymentGatewayTest {
 
     client.post("/api/payments", request)
         .andExpect(status().isServiceUnavailable())
-        .andExpect(jsonPath("$.message").value("Acquiring bank is currently unavailable"));
+        .andExpect(jsonPath("$.message").value(BANK_SERVICE_UNAVAILABLE));
 
     mockBankServer.verify();
   }
@@ -96,7 +98,7 @@ class PaymentGatewayIntegrationTest extends BasePaymentGatewayTest {
 
     client.post("/api/payments", request)
         .andExpect(status().isGatewayTimeout())
-        .andExpect(jsonPath("$.message").value("Communication with acquiring bank timed out"));
+        .andExpect(jsonPath("$.message").value(BANK_TIMEOUT));
 
     mockBankServer.verify();
   }
@@ -132,7 +134,7 @@ class PaymentGatewayIntegrationTest extends BasePaymentGatewayTest {
 
     client.post("/api/payments", request)
         .andExpect(status().isServiceUnavailable())
-        .andExpect(jsonPath("$.message").value("Acquiring bank is currently unavailable"));
+        .andExpect(jsonPath("$.message").value(BANK_SERVICE_UNAVAILABLE));
 
     mockBankServer.verify();
   }

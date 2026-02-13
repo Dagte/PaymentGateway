@@ -23,18 +23,19 @@ public class PaymentGatewayService {
     return paymentsRepository.get(id).orElseThrow(() -> new PaymentNotFoundException(id));
   }
 
-  public Payment processPayment(Payment payment, String cardNumber, String cvv,
+  public PaymentProcessResult processPayment(Payment payment, String cardNumber, String cvv,
       String idempotencyKey) {
+    boolean isRetry = idempotencyKey != null && paymentsRepository.findIdByIdempotencyKey(idempotencyKey).isPresent();
     var activePayment = getOrCreatePayment(payment, idempotencyKey);
 
     if (activePayment.getStatus() != PaymentStatus.PENDING) {
-      return activePayment;
+      return new PaymentProcessResult(activePayment, isRetry);
     }
 
     PaymentStatus paymentStatus = bankClient.process(activePayment, cardNumber, cvv);
     activePayment.setStatus(paymentStatus);
     paymentsRepository.add(activePayment);
-    return activePayment;
+    return new PaymentProcessResult(activePayment, isRetry);
   }
 
   private Payment getOrCreatePayment(Payment payment, String idempotencyKey) {

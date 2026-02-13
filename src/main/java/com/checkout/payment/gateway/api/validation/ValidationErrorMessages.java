@@ -12,6 +12,8 @@ public final class ValidationErrorMessages {
   public static final String MALFORMED_JSON = "Malformed JSON request";
   public static final String INTERNAL_ERROR = "An internal error occurred";
   public static final String BANK_SERVICE_UNAVAILABLE = "Acquiring bank is currently unavailable";
+  public static final String BANK_TIMEOUT = "Communication with acquiring bank timed out";
+  public static final String BANK_UPSTREAM_ERROR = "Acquiring bank returned an internal error";
 
   private ValidationErrorMessages() {
     // Prevent instantiation

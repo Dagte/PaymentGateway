@@ -6,11 +6,12 @@ import com.checkout.payment.gateway.api.dto.PostPaymentResponse;
 import com.checkout.payment.gateway.api.mapper.PaymentMapper;
 import com.checkout.payment.gateway.core.model.Payment;
 import com.checkout.payment.gateway.core.service.PaymentGatewayService;
-import com.checkout.payment.gateway.infrastructure.persistence.PaymentsRepository;
+import com.checkout.payment.gateway.core.service.PaymentProcessResult;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,13 +26,11 @@ public class PaymentGatewayController {
 
   private final PaymentGatewayService paymentGatewayService;
   private final PaymentMapper paymentMapper;
-  private final PaymentsRepository paymentsRepository;
 
   public PaymentGatewayController(PaymentGatewayService paymentGatewayService,
-      PaymentMapper paymentMapper, PaymentsRepository paymentsRepository) {
+      PaymentMapper paymentMapper) {
     this.paymentGatewayService = paymentGatewayService;
     this.paymentMapper = paymentMapper;
-    this.paymentsRepository = paymentsRepository;
   }
 
   @GetMapping("/payment/{id}")
@@ -45,14 +44,17 @@ public class PaymentGatewayController {
       @Valid @RequestBody PostPaymentRequest paymentRequest,
       @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
 
-    boolean isRetry = idempotencyKey != null && paymentsRepository.findIdByIdempotencyKey(idempotencyKey).isPresent();
-
     Payment payment = paymentMapper.toDomain(paymentRequest);
-    Payment processedPayment = paymentGatewayService.processPayment(payment, paymentRequest.getCardNumber(),
+    PaymentProcessResult result = paymentGatewayService.processPayment(payment, paymentRequest.getCardNumber(),
         paymentRequest.getCvv(), idempotencyKey);
     
-    PostPaymentResponse response = paymentMapper.toPostPaymentResponse(processedPayment);
-
-    return new ResponseEntity<>(response, isRetry ? HttpStatus.OK : HttpStatus.CREATED);
+    PostPaymentResponse response = paymentMapper.toPostPaymentResponse(result.payment());
+    return new ResponseEntity<>(response, getResponseStatus(result));
   }
+
+  @NonNull
+  private static HttpStatus getResponseStatus(PaymentProcessResult result) {
+    return result.isRetry() ? HttpStatus.OK : HttpStatus.CREATED;
+  }
+
 }

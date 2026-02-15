@@ -25,8 +25,8 @@ public class PaymentGatewayService {
 
   public PaymentProcessResult processPayment(Payment requestedPayment, String cardNumber, String cvv,
       String idempotencyKey) {
-    var result = getOrCreatePayment(requestedPayment, idempotencyKey);
-    var activePayment = result.payment();
+    PaymentProcessResult result = getOrCreatePayment(requestedPayment, idempotencyKey);
+    Payment activePayment = result.payment();
 
     synchronized (activePayment) {
       if (activePayment.getStatus() != PaymentStatus.PENDING) {

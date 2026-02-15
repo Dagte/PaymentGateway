@@ -8,6 +8,7 @@ import static com.checkout.payment.gateway.api.validation.ValidationErrorMessage
 import static com.checkout.payment.gateway.api.validation.ValidationErrorMessages.VALIDATION_FAILED;
 
 import com.checkout.payment.gateway.api.dto.ErrorResponse;
+import com.checkout.payment.gateway.common.enums.PaymentStatus;
 import com.checkout.payment.gateway.common.exception.BankTimeoutException;
 import com.checkout.payment.gateway.common.exception.BankUnavailableException;
 import com.checkout.payment.gateway.common.exception.BankServerException;
@@ -40,26 +41,26 @@ public class CommonExceptionHandler {
   public ResponseEntity<ErrorResponse> handleBankUnavailableException(
       BankUnavailableException ex) {
     LOG.error("Bank unavailable: {}", ex.getMessage());
-    return new ResponseEntity<>(new ErrorResponse(BANK_SERVICE_UNAVAILABLE), HttpStatus.SERVICE_UNAVAILABLE);
+    return new ResponseEntity<>(new ErrorResponse(PaymentStatus.REJECTED.getName(), BANK_SERVICE_UNAVAILABLE), HttpStatus.SERVICE_UNAVAILABLE);
   }
 
   @ExceptionHandler(CallNotPermittedException.class)
   public ResponseEntity<ErrorResponse> handleCallNotPermittedException(CallNotPermittedException ex) {
     LOG.error("Circuit breaker is open: {}", ex.getMessage());
-    return new ResponseEntity<>(new ErrorResponse(BANK_SERVICE_UNAVAILABLE), HttpStatus.SERVICE_UNAVAILABLE);
+    return new ResponseEntity<>(new ErrorResponse(PaymentStatus.REJECTED.getName(), BANK_SERVICE_UNAVAILABLE), HttpStatus.SERVICE_UNAVAILABLE);
   }
 
   @ExceptionHandler(BankTimeoutException.class)
   public ResponseEntity<ErrorResponse> handleBankTimeoutException(BankTimeoutException ex) {
     LOG.error("Bank timeout: {}", ex.getMessage());
-    return new ResponseEntity<>(new ErrorResponse(BANK_TIMEOUT), HttpStatus.GATEWAY_TIMEOUT);
+    return new ResponseEntity<>(new ErrorResponse(PaymentStatus.REJECTED.getName(), BANK_TIMEOUT), HttpStatus.GATEWAY_TIMEOUT);
   }
 
   @ExceptionHandler(BankServerException.class)
   public ResponseEntity<ErrorResponse> handleBankUpstreamErrorException(
       BankServerException ex) {
     LOG.error("Bank upstream error: {}", ex.getMessage());
-    return new ResponseEntity<>(new ErrorResponse(BANK_UPSTREAM_ERROR), HttpStatus.BAD_GATEWAY);
+    return new ResponseEntity<>(new ErrorResponse(PaymentStatus.REJECTED.getName(), BANK_UPSTREAM_ERROR), HttpStatus.BAD_GATEWAY);
   }
 
   @ExceptionHandler(EventProcessingException.class)
@@ -78,13 +79,13 @@ public class CommonExceptionHandler {
     ).toList();
 
     LOG.error("Validation failed: {}", errors);
-    return new ResponseEntity<>(new ErrorResponse(VALIDATION_FAILED, errors), HttpStatus.BAD_REQUEST);
+    return new ResponseEntity<>(new ErrorResponse(PaymentStatus.REJECTED.getName(), VALIDATION_FAILED, errors), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ErrorResponse> handleMalformedJsonException(HttpMessageNotReadableException ex) {
     LOG.error("Malformed JSON request: {}", ex.getMessage());
-    return new ResponseEntity<>(new ErrorResponse(MALFORMED_JSON), HttpStatus.BAD_REQUEST);
+    return new ResponseEntity<>(new ErrorResponse(PaymentStatus.REJECTED.getName(), MALFORMED_JSON), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(Exception.class)

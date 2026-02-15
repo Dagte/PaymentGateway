@@ -16,6 +16,5 @@ public final class ValidationErrorMessages {
   public static final String BANK_UPSTREAM_ERROR = "Acquiring bank returned an internal error";
 
   private ValidationErrorMessages() {
-    // Prevent instantiation
   }
 }

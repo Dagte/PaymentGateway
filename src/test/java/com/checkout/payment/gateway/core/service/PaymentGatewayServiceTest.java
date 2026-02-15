@@ -65,8 +65,7 @@ class PaymentGatewayServiceTest {
     existingPayment.setId(id);
     existingPayment.setStatus(PaymentStatus.AUTHORIZED);
 
-    when(paymentsRepository.findIdByIdempotencyKey(key)).thenReturn(Optional.of(id));
-    when(paymentsRepository.get(id)).thenReturn(Optional.of(existingPayment));
+    when(paymentsRepository.getOrCreate(eq(key), any())).thenReturn(existingPayment);
 
     PaymentProcessResult result = paymentGatewayService.processPayment(new Payment(), "1234", "123", key);
 

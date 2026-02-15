@@ -23,45 +23,42 @@ public class PaymentGatewayService {
     return paymentsRepository.get(id).orElseThrow(() -> new PaymentNotFoundException(id));
   }
 
-  public PaymentProcessResult processPayment(Payment payment, String cardNumber, String cvv,
+  public PaymentProcessResult processPayment(Payment requestedPayment, String cardNumber, String cvv,
       String idempotencyKey) {
-    boolean isRetry = idempotencyKey != null && paymentsRepository.findIdByIdempotencyKey(idempotencyKey).isPresent();
-    var activePayment = getOrCreatePayment(payment, idempotencyKey);
+    var result = getOrCreatePayment(requestedPayment, idempotencyKey);
+    var activePayment = result.payment();
 
-    if (activePayment.getStatus() != PaymentStatus.PENDING) {
-      return new PaymentProcessResult(activePayment, isRetry);
-    }
-
-    PaymentStatus paymentStatus = bankClient.process(activePayment, cardNumber, cvv);
-    activePayment.setStatus(paymentStatus);
-    paymentsRepository.add(activePayment);
-    return new PaymentProcessResult(activePayment, isRetry);
-  }
-
-  private Payment getOrCreatePayment(Payment payment, String idempotencyKey) {
-    if (idempotencyKey != null) {
-      // TODO: This check-then-act sequence is not atomic. In a multi-node environment, 
-      // use a distributed lock or atomic computeIfAbsent to prevent duplicate bank calls.
-      var existingId = paymentsRepository.findIdByIdempotencyKey(idempotencyKey);
-
-      if (existingId.isPresent()) {
-        return paymentsRepository.get(existingId.get())
-            .orElseThrow(() -> new IllegalStateException("Index exists but Payment missing"));
+    synchronized (activePayment) {
+      if (activePayment.getStatus() != PaymentStatus.PENDING) {
+        return result;
       }
-    }
 
-    return initializeNewPayment(payment, idempotencyKey);
+      PaymentStatus paymentStatus = bankClient.process(activePayment, cardNumber, cvv);
+      activePayment.setStatus(paymentStatus);
+      paymentsRepository.add(activePayment);
+      return new PaymentProcessResult(activePayment, result.isRetry());
+    }
   }
 
-  private Payment initializeNewPayment(Payment payment, String idempotencyKey) {
-    payment.setId(UUID.randomUUID());
-    payment.setStatus(PaymentStatus.PENDING);
-    paymentsRepository.add(payment);
-
+  private PaymentProcessResult getOrCreatePayment(Payment requestedPayment, String idempotencyKey) {
     if (idempotencyKey != null) {
-      paymentsRepository.saveIdempotencyKey(idempotencyKey, payment.getId());
+      Payment finalPayment = paymentsRepository.getOrCreate(idempotencyKey, () -> {
+        initializeNewPayment(requestedPayment);
+        return requestedPayment;
+      });
+
+      boolean isRetry = requestedPayment.getId() == null;
+      return new PaymentProcessResult(finalPayment, isRetry);
     }
-    return payment;
+
+    initializeNewPayment(requestedPayment);
+    paymentsRepository.add(requestedPayment);
+    return new PaymentProcessResult(requestedPayment, false);
+  }
+
+  private static void initializeNewPayment(Payment requestedPayment) {
+    requestedPayment.setId(UUID.randomUUID());
+    requestedPayment.setStatus(PaymentStatus.PENDING);
   }
 
 }

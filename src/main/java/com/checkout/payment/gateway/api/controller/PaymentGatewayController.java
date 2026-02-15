@@ -33,7 +33,7 @@ public class PaymentGatewayController {
     this.paymentMapper = paymentMapper;
   }
 
-  @GetMapping("/payment/{id}")
+  @GetMapping("/payments/{id}")
   public ResponseEntity<GetPaymentResponse> getPostPaymentEventById(@PathVariable UUID id) {
     Payment payment = paymentGatewayService.getPaymentById(id);
     return new ResponseEntity<>(paymentMapper.toGetPaymentResponse(payment), HttpStatus.OK);

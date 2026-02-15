@@ -84,7 +84,7 @@ class PaymentGatewayControllerTest extends BasePaymentGatewayTest {
 
     paymentsRepository.add(payment);
 
-    client.get("/api/payment/" + payment.getId())
+    client.get("/api/payments/" + payment.getId())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value(payment.getStatus().getName()))
         .andExpect(jsonPath("$.cardNumberLastFour").value("0021"))
@@ -97,7 +97,7 @@ class PaymentGatewayControllerTest extends BasePaymentGatewayTest {
   @Test
   void whenPaymentWithIdDoesNotExistThen404IsReturned() throws Exception {
     UUID id = UUID.randomUUID();
-    client.get("/api/payment/" + id)
+    client.get("/api/payments/" + id)
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.message").value("Payment not found for ID: " + id));
   }

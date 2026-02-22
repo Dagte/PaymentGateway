@@ -33,7 +33,7 @@ public class PaymentGatewayService {
         return result;
       }
 
-      PaymentStatus paymentStatus = bankClient.process(activePayment, cardNumber, cvv);
+      PaymentStatus paymentStatus = bankClient.process(activePayment, cardNumber, cvv, activePayment.getId().toString());
       activePayment.setStatus(paymentStatus);
       paymentsRepository.add(activePayment);
       return new PaymentProcessResult(activePayment, result.isRetry());

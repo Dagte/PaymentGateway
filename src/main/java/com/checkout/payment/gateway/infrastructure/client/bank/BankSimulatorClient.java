@@ -17,6 +17,8 @@ import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -41,11 +43,15 @@ public class BankSimulatorClient implements AcquiringBankClient {
   @Override
   @Retry(name = "bankRetry")
   @CircuitBreaker(name = "bankCircuitBreaker")
-  public PaymentStatus process(Payment payment, String cardNumber, String cvv) {
+  public PaymentStatus process(Payment payment, String cardNumber, String cvv, String idempotencyKey) {
     BankPaymentRequest bankRequest = BankRequestMapper.mapToBankRequest(payment, cardNumber, cvv);
 
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Idempotency-Key", idempotencyKey);
+    HttpEntity<BankPaymentRequest> entity = new HttpEntity<>(bankRequest, headers);
+
     try {
-      BankPaymentResponse bankResponse = restTemplate.postForObject(bankUrl, bankRequest,
+      BankPaymentResponse bankResponse = restTemplate.postForObject(bankUrl, entity,
           BankPaymentResponse.class);
 
       if (bankResponse != null && bankResponse.authorized()) {

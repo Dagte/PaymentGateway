@@ -44,7 +44,7 @@ class PaymentGatewayServiceTest {
     String cardNumber = "1234567890123456";
     String cvv = "123";
 
-    when(bankClient.process(any(Payment.class), eq(cardNumber), eq(cvv)))
+    when(bankClient.process(any(Payment.class), eq(cardNumber), eq(cvv), any(String.class)))
         .thenReturn(PaymentStatus.AUTHORIZED);
 
     PaymentProcessResult result = paymentGatewayService.processPayment(payment, cardNumber, cvv, null);
@@ -53,7 +53,7 @@ class PaymentGatewayServiceTest {
     assertThat(result.payment().getStatus()).isEqualTo(PaymentStatus.AUTHORIZED);
     assertThat(result.isRetry()).isFalse();
     
-    verify(bankClient).process(payment, cardNumber, cvv);
+    verify(bankClient).process(payment, cardNumber, cvv, result.payment().getId().toString());
     verify(paymentsRepository, times(2)).add(payment);
   }
 
@@ -71,7 +71,7 @@ class PaymentGatewayServiceTest {
 
     assertThat(result.payment()).isEqualTo(existingPayment);
     assertThat(result.isRetry()).isTrue();
-    verify(bankClient, never()).process(any(), any(), any());
+    verify(bankClient, never()).process(any(), any(), any(), any());
   }
 
   @Test

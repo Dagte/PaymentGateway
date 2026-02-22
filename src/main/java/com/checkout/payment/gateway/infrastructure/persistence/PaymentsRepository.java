@@ -4,6 +4,7 @@ import com.checkout.payment.gateway.core.model.Payment;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -20,7 +21,7 @@ public class PaymentsRepository {
     return Optional.ofNullable(payments.get(id));
   }
 
-  public Payment getOrCreate(String key, java.util.function.Supplier<Payment> paymentSupplier) {
+  public Payment getOrCreate(String key, Supplier<Payment> paymentSupplier) {
     return idempotencyMappings.computeIfAbsent(key, k -> {
       Payment newPayment = paymentSupplier.get();
       add(newPayment);
